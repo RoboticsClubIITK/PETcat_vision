@@ -1,12 +1,12 @@
-# PETcat_vision
-##Some Info:
-1.Use rbuild for building
-2./at contains all folders(/s'i' for i in classes) with each folder having 10 pictures for training
-3.Use at.txt with ./face exec as: ./face at.txt
-4.at.txt contains paths to all images with label, helping in loading dataset
-5./src contains python scripts for polishing images and generating csv though you won't need them
-6./src/face_recog.cpp is the file you use also note /src contains the haarcascade xml and ignore tut.cpp file
-7.Cheers!, contact Shiven(190816) if error in build.
+# PETcat_vision  <br/>
+##Some Info:  <br/>
+1.Use rbuild for building<br/>  
+2./at contains all folders(/s'i' for i in classes) with each folder having 10 pictures for training  <br/>
+3.Use at.txt with ./face exec as: ./face at.txt  <br/>
+4.at.txt contains paths to all images with label, helping in loading dataset<br/>  
+5./src contains python scripts for polishing images and generating csv though you won't need them<br/>  
+6./src/face_recog.cpp is the file you use also note /src contains the haarcascade xml and ignore tut.cpp file<br/>  
+7.Cheers!  <br/>
 
 _________________________________________________
 Vision modules for PETCat, the long term project.
