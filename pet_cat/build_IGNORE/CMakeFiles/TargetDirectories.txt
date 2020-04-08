@@ -1,0 +1,3 @@
+/home/shiven/Desktop/pet_cat/build/CMakeFiles/rebuild_cache.dir
+/home/shiven/Desktop/pet_cat/build/CMakeFiles/exec.dir
+/home/shiven/Desktop/pet_cat/build/CMakeFiles/edit_cache.dir
