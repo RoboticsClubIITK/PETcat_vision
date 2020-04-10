@@ -1,3 +1,0 @@
-/home/shiven/Desktop/pet_cat/rbuild/CMakeFiles/rebuild_cache.dir
-/home/shiven/Desktop/pet_cat/rbuild/CMakeFiles/face.dir
-/home/shiven/Desktop/pet_cat/rbuild/CMakeFiles/edit_cache.dir
