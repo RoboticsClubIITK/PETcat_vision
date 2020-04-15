@@ -130,7 +130,6 @@ int main(int argc, char *argv[])
         GaussianBlur(temp,btemp,Size(3,3),1.4,1.4);
         Canny(btemp,ctemp,50,150);
         
-
         double d = matchShapes(canny,ctemp, CONTOURS_MATCH_I1,0);
         //cout << d << endl;
         if(d<0.005){p++;printf("BALLS!%d\n",p);}
@@ -144,7 +143,6 @@ int main(int argc, char *argv[])
         //     cout << circles[i] << endl;
         // }
 
-
         char c=(char)waitKey(25);
 	    if(c==27)
 	      break;
@@ -153,5 +151,4 @@ int main(int argc, char *argv[])
     destroyAllWindows();
 
     return 0;
-    
 }
