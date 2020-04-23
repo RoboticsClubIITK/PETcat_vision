@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-from detectfaces import get_faces
+#from detectfaces import get_faces
 from keras.models import load_model
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten, BatchNormalization
@@ -9,6 +9,12 @@ from keras import backend as K
 import matplotlib.pyplot as plt
 
 img_rows, img_cols = 48, 48
+face_cascade = cv2.CascadeClassifier('saved_model/haarcascade_frontalface_default.xml')
+modelFile = "saved_model/opencv_face_detector_uint8.pb"
+configFile = "saved_model/opencv_face_detector.pbtxt"
+
+
+
 # 0=Angry, 1=Disgust, 2=Fear, 3=Happy, 4=Sad, 5=Surprise, 6=Neutral
 emotion = ['Angry', "Disgust", 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -42,6 +48,33 @@ def predict(x):
 cap = cv2.VideoCapture(0)
 if not cap.isOpened():
     cap.open()
+
+def get_faces(img, method='haar'):
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    faces = []
+
+    #if (method == 'dnn'):
+        #faces_detected = dnn_faces(img, 0.5)
+    if (method == 'haar'):
+        faces_detected = face_cascade.detectMultiScale(gray, 1.3, 5)
+
+    for i, (x,y,w,h) in enumerate(faces_detected):
+        my = int(y + h/2)
+        mx = int(x + w/2)
+
+        if h<w:
+            c = int(h/2)
+        else:
+            c = int(w/2)
+
+        face = gray[my-c:my+c, mx-c:mx+c]
+        try:
+            face_48 = cv2.resize(face,(48, 48), interpolation = cv2.INTER_CUBIC)
+            faces.append((y, x + w, face_48))
+        except:
+            pass
+
+    return faces
 
 while(True):
     ret, img = cap.read()
