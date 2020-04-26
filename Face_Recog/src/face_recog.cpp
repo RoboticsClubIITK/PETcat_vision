@@ -29,11 +29,11 @@ int faceDetector(Mat& frame){
     if( !face_cascade.load( face_cascade_name ) ){ printf("--(!)Error loading\n"); return -1; };
     face_cascade.detectMultiScale( frame, faces, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE, Size(30, 30) );
     if(faces.size()==0){
-        cout<<"No Face found"<<endl;
+        cout<<"No Face found\n";
         return 0;}
     else{
         
-        cout<<"Face found!"<<endl;
+        cout<<"Face found!\n";
         
         frame(faces[0]).copyTo(processed);
         return 1;
@@ -59,7 +59,7 @@ static void read_csv(const string& filename, vector<Mat>& images, vector<int>& l
     size = *max_element(labels.begin(), labels.end());
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////
-void updateCSV(){
+void updateModel(){
 
         size++;//new label made now
 
@@ -84,7 +84,7 @@ void updateCSV(){
         VideoCapture cap(0); // open the default camera
         if(!cap.isOpened())cout<<"cat's with no eyes see no one"<<endl;
         
-        for(int x=0;x<10;)
+        for(int i=0;i<10;)
     {
         Mat frame;
         cap >> frame; // get a new frame from camera
@@ -117,60 +117,59 @@ void updateCSV(){
                 labels.push_back(size);
 
                 curr_frame++;
-                x++;
+                i++;
             }
         }
         else continue;
     }
         model->update(newImages,newLabels);
+        cout<<"Model Updated\n";
         model->save("lbph_trained_data.yml");        
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////
 void recogniser(){
 
     VideoCapture cap(0); // open the default camera
-
     if(!cap.isOpened()){
-        cout<<"cat's with no eyes see no one"<<endl;
+        cout<<"cats with no eyes see no one"<<endl;
         }
 
     int predictedLabel = -2;
     while(predictedLabel==-2){
 
         Mat testSample;
-        cap >> testSample; // get a new frame from camera
-       
+        cap >> testSample;
+
         if(faceDetector(testSample)==1){
 
             testSample=processed;
     
-            //NEED THIS ONLY THE FIRST TIME
-            if(images.size() <= 1) {
-                string error_message = "Dataset too small";
-                CV_Error(Error::StsError, error_message);
-            } 
-            model->train(images, labels);
-            //model->save("lbph_trained_data.yml");
+            model->read("lbph_trained_data.yml");
 
-            //model->LBPHFaceRecognizer::load("lbph_trained_data.yml");
-    
-            model->setThreshold(50.0);//maybe tune this as well later
-    
+            //model->setThreshold(0.0);
+
             double confidence = 0.0;
             model->predict(testSample, predictedLabel, confidence);
     
             cout << "Predicted class = " << predictedLabel << endl;
             //cout << "Confidence = " <<confidence<<endl;
         
-            //WE NOW HAVE THE PREDICTION
             if(predictedLabel==-1){
                 cap.release();
-                updateCSV();
+                updateModel();
             }
         }
         else 
             continue;
     }
+}
+void firstTrain(){
+    if(images.size() <= 1) {
+        string error_message = "Dataset too small";
+        CV_Error(Error::StsError, error_message);
+        } 
+    model->train(images, labels);
+    model->save("lbph_trained_data.yml");
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////
 int main(int argc, const char *argv[]) {
@@ -185,6 +184,7 @@ int main(int argc, const char *argv[]) {
         cerr << "Error opening file \"" << string(argv[1]) << "\". Reason: " << e.msg << endl;
         exit(1);
     }
+    //firstTrain();
     recogniser();
     return 0; 
 }
