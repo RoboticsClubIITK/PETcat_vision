@@ -1,12 +1,9 @@
-#include "opencv2/core.hpp"
 #include "opencv2/face.hpp"
 #include "opencv2/highgui.hpp"
 #include <opencv2/imgproc/imgproc.hpp>
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <sys/stat.h> 
-#include <sys/types.h> 
 #include<string>
 #include <unistd.h>
 
@@ -19,12 +16,11 @@ int size;
 Ptr<LBPHFaceRecognizer> model = LBPHFaceRecognizer::create();
 vector<Mat> images;
 vector<int> labels;
-//loading cascade for face detection
 String face_cascade_name = "/home/shiven/Desktop/PETcat_vision/Face_Recog/src/haarcascade_frontalface_alt.xml";
 CascadeClassifier face_cascade;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-int faceDetector(Mat frame){
+int faceDetector(Mat& frame){
 
     cvtColor(frame, frame, CV_BGR2GRAY);
     GaussianBlur(frame,frame, Size(7,7), 1.5, 1.5);
@@ -62,7 +58,7 @@ static void read_csv(const string& filename, vector<Mat>& images, vector<int>& l
     }
     size = *max_element(labels.begin(), labels.end());
 }
-/////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////
 void updateCSV(){
 
         size++;//new label made now
@@ -127,31 +123,15 @@ void updateCSV(){
         else continue;
     }
         model->update(newImages,newLabels);
-        model->save("lbph_trained_data1.yml");        
+        model->save("lbph_trained_data.yml");        
 }
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-int main(int argc, const char *argv[]) {
-    
-    if (argc != 2) {
-        cout << "usage: " << argv[0] << " <csv.ext>" << endl;
-        exit(1);
-    }
-    string fn_csv = string(argv[1]);
-    
-    try {
-        read_csv(fn_csv, images, labels);
-    } catch (const cv::Exception& e) {
-        cerr << "Error opening file \"" << fn_csv << "\". Reason: " << e.msg << endl;
-        exit(1);
-    }
-    if(images.size() <= 1) {
-        string error_message = "Dataset too small";
-        CV_Error(Error::StsError, error_message);
-    }
-    
+///////////////////////////////////////////////////////////////////////////////////////////////
+void recogniser(){
+
     VideoCapture cap(0); // open the default camera
+
     if(!cap.isOpened()){
-        cout<<"cat's with no eyes see no one"<<endl;return -1;
+        cout<<"cat's with no eyes see no one"<<endl;
         }
 
     int predictedLabel = -2;
@@ -162,22 +142,26 @@ int main(int argc, const char *argv[]) {
        
         if(faceDetector(testSample)==1){
 
-        testSample=processed;
+            testSample=processed;
     
-        //NEED THIS ONLY THE FIRST TIME 
-        model->train(images, labels);
-        model->save("lbph_trained_data1.yml");
+            //NEED THIS ONLY THE FIRST TIME
+            if(images.size() <= 1) {
+                string error_message = "Dataset too small";
+                CV_Error(Error::StsError, error_message);
+            } 
+            model->train(images, labels);
+            //model->save("lbph_trained_data.yml");
 
-        //model->LBPHFaceRecognizer::load("lbph_trained_data1.yml");
+            //model->LBPHFaceRecognizer::load("lbph_trained_data.yml");
     
-        model->setThreshold(50.0);//maybe tune this as well later
+            model->setThreshold(50.0);//maybe tune this as well later
     
-        double confidence = 0.0;
-        model->predict(testSample, predictedLabel, confidence);
+            double confidence = 0.0;
+            model->predict(testSample, predictedLabel, confidence);
     
-        cout << "Predicted class = " << predictedLabel << endl;
-        //cout << "Confidence = " <<confidence<<endl;
-
+            cout << "Predicted class = " << predictedLabel << endl;
+            //cout << "Confidence = " <<confidence<<endl;
+        
             //WE NOW HAVE THE PREDICTION
             if(predictedLabel==-1){
                 cap.release();
@@ -187,10 +171,24 @@ int main(int argc, const char *argv[]) {
         else 
             continue;
     }
-
+}
+///////////////////////////////////////////////////////////////////////////////////////////////
+int main(int argc, const char *argv[]) {
+    
+    if (argc != 2) {
+        cout << "usage: " << argv[0] << " <csv.ext>" << endl;
+        exit(1);
+    }
+    try {
+        read_csv(string(argv[1]), images, labels);
+    } catch (const cv::Exception& e) {
+        cerr << "Error opening file \"" << string(argv[1]) << "\". Reason: " << e.msg << endl;
+        exit(1);
+    }
+    recogniser();
     return 0; 
 }
-
+///////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
