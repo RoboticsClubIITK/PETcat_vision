@@ -1,3 +1,4 @@
+#pragma once
 #include "opencv2/face.hpp"
 #include "opencv2/highgui.hpp"
 #include <opencv2/imgproc/imgproc.hpp>
@@ -11,17 +12,26 @@ using namespace cv;
 using namespace cv::face;
 using namespace std;
 
-Mat processed;
-int size;
-Ptr<LBPHFaceRecognizer> model = LBPHFaceRecognizer::create();
-vector<Mat> images;
-vector<int> labels;
-string face_cascade_name = "/home/shiven/Desktop/PETcat_vision/Face_Recog/src/haarcascade_frontalface_alt.xml";
-CascadeClassifier face_cascade;
-
-///////////////////////////////////////////////////////////////////////////////////////////////
-int faceDetector(Mat& frame){
-
+class FaceRecog{
+    public:
+        Mat processed;
+        int size;
+        Ptr<LBPHFaceRecognizer> model = LBPHFaceRecognizer::create();
+        vector<Mat> images;
+        vector<int> labels;
+        string face_cascade_name = "/home/shiven/Desktop/PETcat_vision/Face_Recog/src/haarcascade_frontalface_alt.xml";
+        CascadeClassifier face_cascade;
+    
+        int faceDetector(Mat& frame);
+        void read_csv();
+        void updateModel();
+        void recogniser();
+        void firstTrain();
+        FaceRecog(){
+            read_csv();
+        }
+};
+int FaceRecog::faceDetector(Mat& frame){
     cvtColor(frame, frame, CV_BGR2GRAY);
     GaussianBlur(frame,frame, Size(7,7), 1.5, 1.5);
     equalizeHist(frame,frame);
@@ -38,8 +48,15 @@ int faceDetector(Mat& frame){
         return 1;
     }
 }
-///////////////////////////////////////////////////////////////////////////////////////////////
-void read_csv(){
+void FaceRecog::firstTrain(){
+    if(images.size() <= 1) {
+        string error_message = "Dataset too small";
+        CV_Error(Error::StsError, error_message);
+        } 
+    model->train(images, labels);
+    model->save("lbph_trained_data.yml");
+}
+void FaceRecog::read_csv(){
     char separator=';';
     cout<<"Enter File Name:\n";
     string filename;
@@ -61,9 +78,7 @@ void read_csv(){
     }
     size = *max_element(labels.begin(), labels.end());
 }
-///////////////////////////////////////////////////////////////////////////////////////////////
-void updateModel(){
-
+void FaceRecog::updateModel(){
     size++;//new label made now
 
     //create directory for storing images
@@ -125,11 +140,9 @@ void updateModel(){
     }
     model->update(newImages,newLabels);
     cout<<"Model Updated\n";
-    model->save("lbph_trained_data.yml");        
+    model->save("lbph_trained_data.yml");    
 }
-///////////////////////////////////////////////////////////////////////////////////////////////
-void recogniser(){
-
+void FaceRecog::recogniser(){
     VideoCapture cap(0); // open the default camera
     if(!cap.isOpened()){
         cout<<"cats with no eyes see no one"<<endl;
@@ -164,26 +177,11 @@ void recogniser(){
             continue;
     }
 }
-void firstTrain(){
-    if(images.size() <= 1) {
-        string error_message = "Dataset too small";
-        CV_Error(Error::StsError, error_message);
-        } 
-    model->train(images, labels);
-    model->save("lbph_trained_data.yml");
-}
-///////////////////////////////////////////////////////////////////////////////////////////////
-int main() {
-    read_csv();
-    firstTrain();
-    recogniser();
-    return 0; 
-}
-///////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
-
-
-
-
+// int main(){
+//     FaceRecog face;
+//     face.firstTrain();
+//     face.recogniser();
+//     return 0;
+// }
