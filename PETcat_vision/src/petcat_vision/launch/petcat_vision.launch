@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <node pkg="petcat_vision" type="video_feed" name="video_feed"/>
+    <node pkg="petcat_vision" type="gesture_node" name="gesture_node"/>
+</launch>
