@@ -1,5 +1,3 @@
-# PETcat_vision
-
 Vision modules for PETCat, the long term project.
 
 ## Contribution Guidelines

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <node pkg="haar_tracking" type="video_feed" name="video_feed"/>
+    <node pkg="haar_tracking" type="HaarTracking_node" name="HaarTracking_node"/>
+    <node pkg="haar_tracking" type="main_node" name="main_node" output="screen"/>
+</launch>
